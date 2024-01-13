@@ -12,15 +12,15 @@
 
     <video id="camera" width="640" height="480" autoplay></video>
     <div id="result"></div>
-    <button onclick="startCamera()">Start Camera</button>
-    <button onclick="switchCamera()">Switch Camera</button>
+    <button onclick="startCamera()">Start Back Camera</button>
 
     <script>
         let currentStream;
 
         async function startCamera() {
             try {
-                currentStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                // Start the camera with the backward-facing camera
+                currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
 
                 // Access the camera and display the video feed
                 const videoElement = document.getElementById('camera');
@@ -52,36 +52,6 @@
                     // Display the detected barcode on the website
                     displayDetectedBarcode(code);
                 });
-            } catch (error) {
-                console.error('Error accessing camera:', error);
-            }
-        }
-
-        function switchCamera() {
-            if (currentStream) {
-                // Stop the current camera stream
-                currentStream.getTracks().forEach(track => track.stop());
-
-                // Switch between front and back camera
-                const facingMode = currentStream.getVideoTracks()[0].getSettings().facingMode;
-                const newFacingMode = (facingMode === 'user') ? 'environment' : 'user';
-
-                // Get the new camera stream
-                startCameraWithFacingMode(newFacingMode);
-            }
-        }
-
-        async function startCameraWithFacingMode(facingMode) {
-            try {
-                currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
-
-                // Access the camera and display the video feed
-                const videoElement = document.getElementById('camera');
-                videoElement.srcObject = currentStream;
-
-                // Restart QuaggaJS with the new stream
-                Quagga.stop();
-                Quagga.start();
             } catch (error) {
                 console.error('Error accessing camera:', error);
             }
