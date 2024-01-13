@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Barcode Scanner</title>
+	<script src="https://cdn.rawgit.com/serratus/quaggaJS/0.12.1/dist/quagga.min.js"></script>
+</head>
+
+<body>
+
+	<video id="camera" width="640" height="480" autoplay></video>
+	<div id="result"></div>
+	<button onclick="startCamera()">Start Camera</button>
+
+	<script>
+		async function startCamera() {
+			try {
+				const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+				// Access the camera and display the video feed
+				const videoElement = document.getElementById('camera');
+				videoElement.srcObject = stream;
+
+				// Configure and start QuaggaJS
+				Quagga.init({
+					inputStream: {
+						name: "Live",
+						type: "LiveStream",
+						target: videoElement
+					},
+					decoder: {
+						readers: ["ean_reader"] // Use "ean_reader" for EAN-13 barcodes
+					}
+				}, function (err) {
+					if (err) {
+						console.error('Error initializing Quagga:', err);
+						return;
+					}
+					Quagga.start();
+				});
+
+				// Set up a callback to handle barcode detection
+				Quagga.onDetected(function (result) {
+					const code = result.codeResult.code;
+					document.getElementById('result').innerText = 'Detected barcode: ' + code;
+
+					// Display the detected barcode on the website
+					displayDetectedBarcode(code);
+				});
+			} catch (error) {
+				console.error('Error accessing camera:', error);
+			}
+		}
+
+		function displayDetectedBarcode(code) {
+			// You can customize this function to display the detected barcode wherever you want on your website
+			// For now, it just displays an alert with the barcode
+			alert('Detected barcode: ' + code);
+		}
+	</script>
+
+</body>
+
+</html>
+/html>
